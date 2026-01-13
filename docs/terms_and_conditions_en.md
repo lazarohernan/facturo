@@ -193,7 +193,7 @@ To the maximum extent permitted by law, we are not liable for:
 - Business interruptions
 - Damages exceeding amounts paid (if any)
 
-### 11.3 Account Deletion and Data Removal
+### 10.3 Account Deletion and Data Removal
 You have the right to delete your account and all personal data at any time:
 
 - **Deletion Process**: You can request account deletion from Profile > Account > Delete Account

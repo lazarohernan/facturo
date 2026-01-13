@@ -193,7 +193,7 @@ En la máxima medida permitida por ley, no somos responsables de:
 - Interrrupciones comerciales
 - Daños que excedan los montos pagados (si los hay)
 
-### 11.3 Eliminación de Cuenta y Datos
+### 10.3 Eliminación de Cuenta y Datos
 Usted tiene derecho a eliminar su cuenta y todos sus datos personales en cualquier momento:
 
 - **Proceso de Eliminación**: Puede solicitar la eliminación de su cuenta desde Perfil > Cuenta > Eliminar Cuenta

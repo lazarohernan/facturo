@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturo - Legal Documentation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .card { background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #007AFF; }
+        .card h2 { color: #007AFF; margin-top: 0; }
+        .card p { color: #666; margin-bottom: 15px; }
+        .btn { display: inline-block; background: #007AFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .language-toggle { text-align: center; margin-bottom: 20px; }
+        .language-toggle button { background: #f8f9fa; border: 2px solid #007AFF; padding: 8px 16px; margin: 0 5px; border-radius: 4px; cursor: pointer; }
+        .language-toggle button.active { background: #007AFF; color: white; }
+        .en-content, .es-content { display: none; }
+        .en-content.active, .es-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-toggle">
+            <button onclick="showSpanish()" class="active" id="es-btn">Español</button>
+            <button onclick="showEnglish()" id="en-btn">English</button>
+        </div>
+        
+        <!-- Spanish Content -->
+        <div class="es-content active" id="es-content">
+            <h1>Facturo - Documentación Legal</h1>
+            
+            <div class="card">
+                <h2>📋 Política de Privacidad</h2>
+                <p>Información completa sobre cómo recopilamos, usamos y protegemos sus datos personales en la aplicación Facturo.</p>
+                <a href="privacy-policy.html" class="btn">Ver Política de Privacidad</a>
+            </div>
+            
+            <div class="card">
+                <h2>📝 Términos y Condiciones</h2>
+                <p>Términos completos que rigen el uso de la aplicación Facturo, incluyendo derechos y responsabilidades del usuario.</p>
+                <a href="terms-and-conditions.html" class="btn">Ver Términos y Condiciones</a>
+            </div>
+            
+            <div class="card">
+                <h2>ℹ️ Información de Contacto</h2>
+                <p>Para cualquier pregunta sobre nuestras políticas legales o para ejercer sus derechos de privacidad:</p>
+                <p><strong>Email:</strong> facturohn@gmail.com<br>
+                <strong>App:</strong> Facturo<br>
+                <strong>País:</strong> Estados Unidos</p>
+            </div>
+        </div>
+        
+        <!-- English Content -->
+        <div class="en-content" id="en-content">
+            <h1>Facturo - Legal Documentation</h1>
+            
+            <div class="card">
+                <h2>📋 Privacy Policy</h2>
+                <p>Complete information about how we collect, use, and protect your personal data in the Facturo application.</p>
+                <a href="privacy-policy-en.html" class="btn">View Privacy Policy</a>
+            </div>
+            
+            <div class="card">
+                <h2>📝 Terms and Conditions</h2>
+                <p>Complete terms governing the use of the Facturo application, including user rights and responsibilities.</p>
+                <a href="terms-and-conditions-en.html" class="btn">View Terms and Conditions</a>
+            </div>
+            
+            <div class="card">
+                <h2>ℹ️ Contact Information</h2>
+                <p>For any questions about our legal policies or to exercise your privacy rights:</p>
+                <p><strong>Email:</strong> facturohn@gmail.com<br>
+                <strong>App:</strong> Facturo<br>
+                <strong>Country:</strong> United States</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showSpanish() {
+            document.getElementById('es-content').classList.add('active');
+            document.getElementById('en-content').classList.remove('active');
+            document.getElementById('es-btn').classList.add('active');
+            document.getElementById('en-btn').classList.remove('active');
+            document.documentElement.lang = 'es';
+        }
+        
+        function showEnglish() {
+            document.getElementById('en-content').classList.add('active');
+            document.getElementById('es-content').classList.remove('active');
+            document.getElementById('en-btn').classList.add('active');
+            document.getElementById('es-btn').classList.remove('active');
+            document.documentElement.lang = 'en';
+        }
+        
+        // Auto-detect browser language
+        function detectLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            if (userLang.startsWith('en')) {
+                showEnglish();
+            } else {
+                showSpanish();
+            }
+        }
+        
+        // Initialize on page load
+        window.onload = detectLanguage;
+    </script>
+</body>
+</html>
