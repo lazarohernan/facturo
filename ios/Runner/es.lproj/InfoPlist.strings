@@ -1,0 +1,7 @@
+/* Localized versions of Info.plist keys */
+
+"NSCameraUsageDescription" = "Esta aplicación necesita acceso a tu cámara para escanear facturas y documentos automáticamente.";
+"NSPhotoLibraryUsageDescription" = "Esta aplicación necesita acceso a tu galería para seleccionar facturas y documentos para escanear.";
+"NSPhotoLibraryAddUsageDescription" = "Esta aplicación necesita acceso para guardar facturas y documentos en tu galería.";
+"NSFaceIDUsageDescription" = "Facturo usa Face ID para proteger tu información financiera y acceder de forma segura.";
+"NSUserNotificationsUsageDescription" = "Facturo necesita enviar notificaciones para informarte sobre tu resumen semanal de actividad y mantener tu negocio organizado.";

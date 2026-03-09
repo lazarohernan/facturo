@@ -1,0 +1,7 @@
+/* Localized versions of Info.plist keys */
+
+"NSCameraUsageDescription" = "This app needs access to your camera to automatically scan invoices and documents.";
+"NSPhotoLibraryUsageDescription" = "This app needs access to your photo library to select invoices and documents for scanning.";
+"NSPhotoLibraryAddUsageDescription" = "This app needs access to save invoices and documents to your photo library.";
+"NSFaceIDUsageDescription" = "Facturo uses Face ID to protect your financial information and provide secure access.";
+"NSUserNotificationsUsageDescription" = "Facturo sends notifications to keep you informed about your weekly activity summary and help you stay organized.";

@@ -1,0 +1,85 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Environment files
+.env
+*.env
+.env.*
+
+# Build artifacts
+ios/build/
+build/
+
+# Sensitive keys and credentials
+*.p8
+GoogleService-Info.plist
+client_*.plist
+generate_apple_secret.py
+
+# AI/IDE tool configs
+.agents/
+.claude/
+.cursor/
+.mcp.json
+
+# Internal docs (not for public repo)
+APPLE_*.md
+APP_REVIEW_NOTES.md
+CUSTOM_EMAIL_DEPLOYMENT.md
+DESIGN_SYSTEM_MIGRATION_GUIDE.md
+GOOGLE_SIGNIN_SETUP.md
+HARDCODED_TEXTS_REPORT.md
+PRICING_ANALYSIS.md
+RESPONSIVE_DESIGN_BEST_PRACTICES.md
+AGENTS.md
+
+# Screenshots and temp files
+flutter_0*.png
+landing.html
+install_manual.json
+change_icons.sh
+icon_setup_guide.yaml
+untranslated_messages.txt

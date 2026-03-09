@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - Modern Style</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+            padding: 30px;
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-left .logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-left .logo img {
+            max-width: 55px;
+            max-height: 55px;
+            object-fit: contain;
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        .header-right {
+            text-align: right;
+        }
+        .header .invoice-number {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+        .info-box {
+            flex: 1;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .info-box h3 {
+            color: #667eea;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .info-box p {
+            margin: 3px 0;
+            font-size: 12px;
+        }
+        .info-box strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 12px;
+        }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        thead th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+        tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+        tbody td {
+            padding: 12px 10px;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .totals-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .signature-box {
+            width: 45%;
+        }
+        .signature-box h4 {
+            font-size: 11px;
+            color: #667eea;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .signature-box .signature-line {
+            border-bottom: 1px solid #ccc;
+            height: 50px;
+            margin-bottom: 5px;
+        }
+        .signature-box .signature-img {
+            max-height: 50px;
+            margin-bottom: 5px;
+        }
+        .signature-box p {
+            font-size: 11px;
+            color: #666;
+        }
+        .totals {
+            width: 45%;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+        .totals-row.total {
+            border-top: 2px solid #667eea;
+            margin-top: 8px;
+            padding-top: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .totals-row.balance {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .notes {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+        .notes h3 {
+            color: #f57c00;
+            font-size: 11px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .notes p {
+            font-size: 11px;
+            color: #666;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">{{BUSINESS_LOGO}}</div>
+            <div>
+                <h1>INVOICE</h1>
+                <span style="font-size: 12px; opacity: 0.8;">{{BUSINESS_NAME}}</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="invoice-number">#{{INVOICE_NUMBER}}</div>
+            <div style="font-size: 12px; margin-top: 5px;">Date: {{INVOICE_DATE}}</div>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <div class="info-box">
+            <h3>From</h3>
+            <strong>{{BUSINESS_NAME}}</strong>
+            <p>{{BUSINESS_NUMBER}}</p>
+            <p>{{BUSINESS_ADDRESS}}</p>
+            <p>{{BUSINESS_PHONE}}</p>
+            <p>{{BUSINESS_EMAIL}}</p>
+            <p>{{BUSINESS_WEBSITE}}</p>
+        </div>
+        <div class="info-box">
+            <h3>Bill To</h3>
+            <strong>{{CLIENT_NAME}}</strong>
+            <p>{{CLIENT_ADDRESS}}</p>
+            <p>{{CLIENT_PHONE}}</p>
+            <p>{{CLIENT_EMAIL}}</p>
+        </div>
+        <div class="info-box">
+            <h3>Invoice Details</h3>
+            <p><strong>Invoice #:</strong> {{INVOICE_NUMBER}}</p>
+            <p><strong>PO #:</strong> {{PO_NUMBER}}</p>
+            <p><strong>Date:</strong> {{INVOICE_DATE}}</p>
+            <p><strong>Due:</strong> {{DUE_DATE}}</p>
+            <p><strong>Status:</strong> {{STATUS}}</p>
+            <p><strong>Payment:</strong> {{PAID}}</p>
+            <p style="margin-top: 10px;"><strong>Balance Due:</strong></p>
+            <p style="font-size: 18px; color: #667eea; font-weight: bold;">{{BALANCE_DUE}}</p>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">Description</th>
+                <th class="text-center" style="width: 15%;">Qty</th>
+                <th class="text-right" style="width: 17%;">Unit Price</th>
+                <th class="text-right" style="width: 18%;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ITEMS_ROWS}}
+        </tbody>
+    </table>
+    
+    <div class="totals-section">
+        <div class="signature-box">
+            <h4>Authorized Signature</h4>
+            <div class="signature-line">{{SIGNATURE}}</div>
+            <p>{{OWNER_NAME}}</p>
+            <p>Date: {{INVOICE_DATE}}</p>
+        </div>
+        <div class="totals">
+            <div class="totals-row">
+                <span>Subtotal:</span>
+                <span>{{SUBTOTAL}}</span>
+            </div>
+            <div class="totals-row">
+                <span>Tax ({{TAX_PERCENTAGE}}):</span>
+                <span>{{TAX_AMOUNT}}</span>
+            </div>
+            <div class="totals-row">
+                <span>Discount ({{DISCOUNT_PERCENTAGE}}):</span>
+                <span>-{{DISCOUNT_AMOUNT}}</span>
+            </div>
+            <div class="totals-row total">
+                <span>Total:</span>
+                <span>{{TOTAL}}</span>
+            </div>
+            <div class="totals-row balance">
+                <span>Balance Due:</span>
+                <span>{{BALANCE_DUE}}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notes">
+        <h3>Notes</h3>
+        <p>{{NOTES}}</p>
+    </div>
+    
+    <div class="footer">
+        <p>Please Make Checks Payable to: {{OWNER_NAME}}</p>
+        <p style="margin-top: 5px;">Thank you for your business!</p>
+    </div>
+</body>
+</html>

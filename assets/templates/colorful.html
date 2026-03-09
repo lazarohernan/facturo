@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - Colorful Style</title>
+    <style>
+        @page { size: A4; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            color: #2d3748;
+            line-height: 1.5;
+            padding: 25px;
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header-left .logo { width: 55px; height: 55px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .header-left .logo img { max-width: 50px; max-height: 50px; object-fit: contain; }
+        .header h1 { font-size: 26px; font-weight: 700; letter-spacing: 2px; }
+        .header-right { text-align: right; }
+        .header .invoice-number { font-size: 14px; opacity: 0.9; }
+        .header .balance { font-size: 20px; font-weight: 700; margin-top: 5px; }
+        .info-section { display: flex; gap: 12px; margin-bottom: 20px; }
+        .info-box { flex: 1; padding: 15px; border-radius: 10px; color: white; }
+        .info-box:nth-child(1) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .info-box:nth-child(2) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .info-box h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; opacity: 0.9; }
+        .info-box p { margin: 3px 0; font-size: 11px; opacity: 0.95; }
+        .info-box strong { display: block; font-size: 13px; margin-bottom: 5px; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; border-radius: 10px; overflow: hidden; font-size: 11px; }
+        thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        thead th { padding: 10px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 1px; }
+        tbody tr { background: white; }
+        tbody tr:nth-child(even) { background: #f7fafc; }
+        tbody td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .totals-section { display: flex; justify-content: space-between; margin-top: 15px; }
+        .signature-box { width: 45%; padding: 15px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 10px; }
+        .signature-box h4 { font-size: 10px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; color: #c05621; }
+        .signature-box .signature-line { border-bottom: 1px solid #c05621; height: 40px; margin-bottom: 5px; }
+        .signature-box p { font-size: 10px; color: #744210; }
+        .totals { width: 45%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white; }
+        .totals-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; opacity: 0.95; }
+        .totals-row.total { border-top: 2px solid rgba(255,255,255,0.3); margin-top: 8px; padding-top: 10px; font-size: 13px; font-weight: 700; opacity: 1; }
+        .totals-row.balance { font-size: 16px; font-weight: 700; }
+        .notes { margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 10px; }
+        .notes h3 { color: #c05621; font-size: 10px; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
+        .notes p { font-size: 10px; color: #744210; }
+        .footer { margin-top: 20px; text-align: center; color: #a0aec0; font-size: 10px; padding-top: 15px; border-top: 2px solid #e2e8f0; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">{{BUSINESS_LOGO}}</div>
+            <div>
+                <h1>INVOICE</h1>
+                <div class="invoice-number">#{{INVOICE_NUMBER}}</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div style="font-size: 11px; opacity: 0.9;">{{INVOICE_DATE}}</div>
+            <div class="balance">{{BALANCE_DUE}}</div>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <div class="info-box">
+            <h3>From</h3>
+            <strong>{{BUSINESS_NAME}}</strong>
+            <p>{{BUSINESS_NUMBER}}</p>
+            <p>{{BUSINESS_ADDRESS}}</p>
+            <p>{{BUSINESS_PHONE}}</p>
+            <p>{{BUSINESS_EMAIL}}</p>
+        </div>
+        <div class="info-box">
+            <h3>Bill To</h3>
+            <strong>{{CLIENT_NAME}}</strong>
+            <p>{{CLIENT_ADDRESS}}</p>
+            <p>{{CLIENT_PHONE}}</p>
+            <p>{{CLIENT_EMAIL}}</p>
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50%;">Description</th>
+                <th class="text-center" style="width: 15%;">Qty</th>
+                <th class="text-right" style="width: 17%;">Price</th>
+                <th class="text-right" style="width: 18%;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ITEMS_ROWS}}
+        </tbody>
+    </table>
+    
+    <div class="totals-section">
+        <div class="signature-box">
+            <h4>Signature</h4>
+            <div class="signature-line">{{SIGNATURE}}</div>
+            <p>{{OWNER_NAME}}</p>
+            <p>{{INVOICE_DATE}}</p>
+        </div>
+        <div class="totals">
+            <div class="totals-row"><span>Subtotal:</span><span>{{SUBTOTAL}}</span></div>
+            <div class="totals-row"><span>Tax ({{TAX_PERCENTAGE}}):</span><span>{{TAX_AMOUNT}}</span></div>
+            <div class="totals-row"><span>Discount:</span><span>-{{DISCOUNT_AMOUNT}}</span></div>
+            <div class="totals-row total"><span>Total:</span><span>{{TOTAL}}</span></div>
+            <div class="totals-row balance"><span>Balance Due:</span><span>{{BALANCE_DUE}}</span></div>
+        </div>
+    </div>
+    
+    <div class="notes">
+        <h3>Notes</h3>
+        <p>{{NOTES}}</p>
+    </div>
+    
+    <div class="footer">
+        <p>Thank you for your business! — {{OWNER_NAME}}</p>
+    </div>
+</body>
+</html>

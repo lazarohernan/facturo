@@ -1,0 +1,5 @@
+# This file ensures the images directory is tracked by git
+# Add your onboarding images here:
+# - onboarding_invoice.png
+# - onboarding_ocr.png  
+# - onboarding_analytics.png
