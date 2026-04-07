@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:facturo/core/services/storage_service.dart';
 import 'package:facturo/features/estimates/models/estimate_model.dart';
 import 'package:facturo/features/estimates/widgets/estimate_items_list.dart';
+import 'package:facturo/common/widgets/add_client_sheet.dart';
 import 'package:facturo/features/subscriptions/mixins/freemium_mixin.dart';
 import 'package:facturo/features/subscriptions/services/freemium_service.dart';
 import 'package:facturo/generated/l10n/app_localizations.dart';
@@ -61,7 +62,8 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
     // Set default date to today
     _documentDate = widget.estimate?.documentDate ?? DateTime.now();
     // Set default expiry date to 30 days from document date
-    _expiryDate = widget.estimate?.expiryDate ??
+    _expiryDate =
+        widget.estimate?.expiryDate ??
         _documentDate?.add(const Duration(days: 30));
     // Set default values for discount and tax
     _generalDiscount = widget.estimate?.generalDiscount ?? 0.00;
@@ -90,20 +92,33 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
 
   // Load clients from the database
   Future<void> _loadClients() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoadingClients = true;
     });
 
     try {
       final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser!.id;
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) {
+        if (!mounted) return;
+        setState(() {
+          _isLoadingClients = false;
+        });
+        return;
+      }
 
       final response = await supabase
           .from('clients')
-          .select('clients_id, client_name')
+          .select(
+            'clients_id, client_name, client_email, secondary_email_client, client_mobile, client_phone, client_address_1, client_address_2',
+          )
           .eq('user_id', userId)
           .eq('status', true)
           .order('client_name');
+
+      if (!mounted) return;
 
       setState(() {
         _clients = List<Map<String, dynamic>>.from(response);
@@ -112,7 +127,8 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
         // Validate and set clientId after loading clients
         if (widget.estimate != null && widget.estimate!.clientId != null) {
           final clientExists = _clients.any(
-              (client) => client['clients_id'] == widget.estimate!.clientId);
+            (client) => client['clients_id'] == widget.estimate!.clientId,
+          );
           if (clientExists) {
             _clientId = widget.estimate!.clientId;
           } else {
@@ -123,6 +139,7 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
         }
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoadingClients = false;
       });
@@ -175,6 +192,13 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
   }
 
   Future<void> _submitForm() async {
+    if (_clientId == null || _clientId!.isEmpty) {
+      setState(() {
+        _clientError = AppLocalizations.of(context).pleaseSelectClient;
+      });
+      return;
+    }
+    setState(() => _clientError = null);
     if (!_formKey.currentState!.validate()) return;
 
     // Si es un nuevo estimado, verificar límite freemium
@@ -234,7 +258,9 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
       key: _formKey,
       child: SingleChildScrollView(
         padding: EdgeInsets.all(
-          LayoutSystem.isMobile(context) ? DesignTokens.spacingMd : DesignTokens.spacingLg
+          LayoutSystem.isMobile(context)
+              ? DesignTokens.spacingMd
+              : DesignTokens.spacingLg,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +279,9 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
                   icon: Iconsax.document_text_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context).pleaseEnterEstimateNumber;
+                      return AppLocalizations.of(
+                        context,
+                      ).pleaseEnterEstimateNumber;
                     }
                     return null;
                   },
@@ -300,63 +328,7 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
               theme,
               title: AppLocalizations.of(context).clientInformation,
               children: [
-                _buildDropdownField(
-                  value: _clientId,
-                  label: AppLocalizations.of(context).clientRequired,
-                  hint: _isLoadingClients
-                      ? AppLocalizations.of(context).loadingClients
-                      : AppLocalizations.of(context).selectClient,
-                  icon: Iconsax.user_outline,
-                  items: _isLoadingClients
-                      ? [
-                          DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(AppLocalizations.of(context).loadingClients),
-                          ),
-                        ]
-                      : _clients.isEmpty
-                          ? [
-                              DropdownMenuItem<String>(
-                                value: null,
-                                child: Text(AppLocalizations.of(context).noClientsAvailable),
-                              ),
-                            ]
-                          : [
-                              DropdownMenuItem<String>(
-                                value: null,
-                                child: Text(AppLocalizations.of(context).selectAClient),
-                              ),
-                              ..._clients.map((client) {
-                                return DropdownMenuItem<String>(
-                                  value: client['clients_id'],
-                                  child: Text(client['client_name']),
-                                );
-                              }),
-                            ],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _clientId = newValue;
-                      _clientError = null;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context).pleaseSelectClient;
-                    }
-                    return null;
-                  },
-                ),
-                if (_clientError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      _clientError!,
-                      style: TextStyle(
-                        color: theme.colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
+                _buildClientSelector(theme),
               ],
             ),
             const SizedBox(height: 16),
@@ -410,14 +382,18 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
                   foregroundColor: theme.colorScheme.onPrimary,
                   elevation: 0,
                   padding: EdgeInsets.symmetric(
-                    vertical: LayoutSystem.isMobile(context) ? DesignTokens.spacingMd : DesignTokens.spacingLg
+                    vertical: LayoutSystem.isMobile(context)
+                        ? DesignTokens.spacingMd
+                        : DesignTokens.spacingLg,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: DesignTokens.radius(DesignTokens.borderRadiusMd),
+                    borderRadius: DesignTokens.radius(
+                      DesignTokens.borderRadiusMd,
+                    ),
                   ),
                   minimumSize: Size(
                     double.infinity,
-                    LayoutSystem.isMobile(context) ? 48 : 56
+                    LayoutSystem.isMobile(context) ? 48 : 56,
                   ),
                 ),
                 child: Text(
@@ -426,12 +402,18 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
                       : AppLocalizations.of(context).updateEstimate,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: LayoutSystem.isMobile(context) ? DesignTokens.fontSizeMd : DesignTokens.fontSizeLg,
+                    fontSize: LayoutSystem.isMobile(context)
+                        ? DesignTokens.fontSizeMd
+                        : DesignTokens.fontSizeLg,
                   ),
                 ),
               ),
             ),
-            SizedBox(height: LayoutSystem.isMobile(context) ? DesignTokens.spacing3xl : DesignTokens.spacing4xl),
+            SizedBox(
+              height: LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacing3xl
+                  : DesignTokens.spacing4xl,
+            ),
           ],
         ),
       ),
@@ -467,16 +449,24 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
           // Section header
           Padding(
             padding: EdgeInsets.fromLTRB(
-              LayoutSystem.isMobile(context) ? DesignTokens.spacingLg : DesignTokens.spacingXl,
-              LayoutSystem.isMobile(context) ? DesignTokens.spacingMd : DesignTokens.spacingLg,
-              LayoutSystem.isMobile(context) ? DesignTokens.spacingLg : DesignTokens.spacingXl,
+              LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacingLg
+                  : DesignTokens.spacingXl,
+              LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacingMd
+                  : DesignTokens.spacingLg,
+              LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacingLg
+                  : DesignTokens.spacingXl,
               DesignTokens.spacingSm,
             ),
             child: Text(
               title,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                fontSize: LayoutSystem.isMobile(context) ? DesignTokens.fontSizeMd : DesignTokens.fontSizeLg,
+                fontSize: LayoutSystem.isMobile(context)
+                    ? DesignTokens.fontSizeMd
+                    : DesignTokens.fontSizeLg,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
@@ -484,14 +474,18 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
           // Section content
           Padding(
             padding: EdgeInsets.fromLTRB(
-              LayoutSystem.isMobile(context) ? DesignTokens.spacingLg : DesignTokens.spacingXl,
+              LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacingLg
+                  : DesignTokens.spacingXl,
               0,
-              LayoutSystem.isMobile(context) ? DesignTokens.spacingLg : DesignTokens.spacingXl,
-              LayoutSystem.isMobile(context) ? DesignTokens.spacingMd : DesignTokens.spacingLg,
+              LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacingLg
+                  : DesignTokens.spacingXl,
+              LayoutSystem.isMobile(context)
+                  ? DesignTokens.spacingMd
+                  : DesignTokens.spacingLg,
             ),
-            child: Column(
-              children: children,
-            ),
+            child: Column(children: children),
           ),
         ],
       ),
@@ -514,9 +508,7 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         filled: true,
         fillColor: Colors.transparent,
       ),
@@ -524,6 +516,225 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
       validator: validator,
       maxLines: maxLines ?? 1,
     );
+  }
+
+  Widget _buildClientSelector(ThemeData theme) {
+    final l10n = AppLocalizations.of(context);
+    final selectedName = _clientId != null
+        ? _clients.firstWhere(
+            (c) => c['clients_id'] == _clientId,
+            orElse: () => {},
+          )['client_name'] as String?
+        : null;
+
+    return GestureDetector(
+      onTap: () => _showClientDialog(theme, l10n),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: l10n.clientRequired,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          filled: true,
+          fillColor: Colors.transparent,
+          errorText: _clientError,
+          suffixIcon: _isLoadingClients
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : const Icon(Icons.arrow_drop_down),
+        ),
+        child: Text(
+          selectedName ?? l10n.selectClient,
+          style: TextStyle(
+            color: selectedName != null
+                ? theme.colorScheme.onSurface
+                : theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showClientDialog(
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        String query = '';
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final filtered = query.isEmpty
+                ? _clients
+                : _clients.where((c) => (c['client_name'] as String)
+                    .toLowerCase()
+                    .contains(query.toLowerCase())).toList();
+
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 12, 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.selectClient,
+                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close, size: 20),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Buscador
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: TextField(
+                      autofocus: false,
+                      onChanged: (v) => setDialogState(() => query = v),
+                      decoration: InputDecoration(
+                        hintText: l10n.searchClients,
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Divider(height: 1, color: theme.colorScheme.outline.withValues(alpha: 0.15)),
+                  // Lista
+                  if (filtered.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+                      child: Center(
+                        child: Text(
+                          l10n.noClientsFound,
+                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 320),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final client = filtered[index];
+                          final id = client['clients_id'] as String;
+                          final name = client['client_name'] as String;
+                          final isSelected = id == _clientId;
+                          return InkWell(
+                            onTap: () => Navigator.pop(context, id),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor: isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.primary.withValues(alpha: 0.1),
+                                    child: Text(
+                                      name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? theme.colorScheme.onPrimary
+                                            : theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      name,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                        color: isSelected ? theme.colorScheme.primary : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(Icons.check, size: 18, color: theme.colorScheme.primary),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  // Footer
+                  Divider(height: 1, color: theme.colorScheme.outline.withValues(alpha: 0.15)),
+                  InkWell(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final newClient = await showAddClientSheet(context);
+                      if (newClient != null && mounted) {
+                        setState(() {
+                          _clients = [..._clients, newClient]
+                            ..sort((a, b) => (a['client_name'] as String)
+                                .toLowerCase()
+                                .compareTo((b['client_name'] as String).toLowerCase()));
+                          _clientId = newClient['clients_id'] as String;
+                          _clientError = null;
+                        });
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add, size: 18, color: theme.colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.addClient,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected != null) {
+      setState(() {
+        _clientId = selected;
+        _clientError = null;
+      });
+    }
   }
 
   // Build date field with modern design
@@ -552,46 +763,19 @@ class _EstimateFormState extends ConsumerState<EstimateForm>
           labelText: label,
           hintText: hint,
           prefixIcon: const Icon(Iconsax.calendar_outline),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           filled: true,
           fillColor: Colors.transparent,
         ),
         child: Text(
           selectedDate != null
-              ? DateFormat('MMM dd, yyyy', Localizations.localeOf(context).languageCode).format(selectedDate)
+              ? DateFormat(
+                  'MMM dd, yyyy',
+                  Localizations.localeOf(context).languageCode,
+                ).format(selectedDate)
               : hint,
         ),
       ),
-    );
-  }
-
-  // Build dropdown field with modern design
-  Widget _buildDropdownField({
-    required String? value,
-    required String label,
-    required String hint,
-    required IconData icon,
-    required List<DropdownMenuItem<String>> items,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-  }) {
-    return DropdownButtonFormField<String>(
-      initialValue: value,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        filled: true,
-        fillColor: Colors.transparent,
-      ),
-      items: items,
-      onChanged: onChanged,
-      validator: validator,
     );
   }
 }

@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart';
+import 'package:facturo/common/widgets/add_client_sheet.dart';
 import 'package:facturo/features/subscriptions/mixins/freemium_mixin.dart';
 import 'package:facturo/features/subscriptions/services/freemium_service.dart';
 
@@ -392,7 +393,9 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm>
 
       final response = await supabase
           .from('clients')
-          .select('clients_id, client_name')
+          .select(
+            'clients_id, client_name, client_email, secondary_email_client, client_mobile, client_phone, client_address_1, client_address_2',
+          )
           .eq('user_id', userId)
           .eq('status', true)
           .order('client_name');
@@ -401,6 +404,17 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm>
 
       setState(() {
         _clients = List<Map<String, dynamic>>.from(response);
+        if (widget.invoice != null && widget.invoice!.clientId != null) {
+          final clientExists = _clients.any(
+            (client) => client['clients_id'] == widget.invoice!.clientId,
+          );
+          if (clientExists) {
+            _clientId = widget.invoice!.clientId;
+          } else {
+            _clientId = null;
+            _clientError = AppLocalizations.of(context).clientNoLongerAvailable;
+          }
+        }
         _isLoadingClients = false;
       });
     } catch (e) {
@@ -600,6 +614,13 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm>
   }
 
   Future<void> _submitForm() async {
+    if (!_isReadOnly && (_clientId == null || _clientId!.isEmpty)) {
+      setState(() {
+        _clientError = AppLocalizations.of(context).pleaseSelectClient;
+      });
+      return;
+    }
+    setState(() => _clientError = null);
     if (!_formKey.currentState!.validate()) return;
 
     // Si es una nueva factura, verificar límite freemium
@@ -1134,67 +1155,223 @@ class _InvoiceFormState extends ConsumerState<InvoiceForm>
     );
   }
 
-  // Helper method to build client selector
+  // Selector de cliente: AlertDialog
   Widget _buildClientSelector(ThemeData theme, AppLocalizations localizations) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InputDecorator(
-          decoration: InputDecoration(
-            labelText: '${localizations.client} *',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            prefixIcon: const Icon(Icons.person_outline),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            errorText: _clientError,
-          ),
-          child: _isLoadingClients
-              ? const Center(
+    final selectedName = _clientId != null
+        ? _clients.firstWhere(
+            (c) => c['clients_id'] == _clientId,
+            orElse: () => {},
+          )['client_name'] as String?
+        : null;
+
+    return GestureDetector(
+      onTap: _isReadOnly ? null : () => _showClientDialog(theme, localizations),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: localizations.clientRequired,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          filled: true,
+          fillColor: Colors.transparent,
+          errorText: _clientError,
+          suffixIcon: _isLoadingClients
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
                   child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2.0),
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 )
-              : DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _clientId,
-                    hint: Text(localizations.selectClient),
-                    isExpanded: true,
-                    onChanged: _isReadOnly
-                        ? null
-                        : (String? newValue) {
-                            setState(() {
-                              _clientId = newValue;
-                              _clientError = null;
-                            });
-                          },
-                    items: _clients.isEmpty
-                        ? [
-                            DropdownMenuItem<String>(
-                              value: null,
-                              child: Text(localizations.noClientsYet),
-                            ),
-                          ]
-                        : [
-                            DropdownMenuItem<String>(
-                              value: null,
-                              child: Text(localizations.selectClient),
-                            ),
-                            ..._clients.map((client) {
-                              return DropdownMenuItem<String>(
-                                value: client['clients_id'],
-                                child: Text(client['client_name']),
-                              );
-                            }),
-                          ],
-                  ),
-                ),
+              : const Icon(Icons.arrow_drop_down),
         ),
-      ],
+        child: Text(
+          selectedName ?? localizations.selectClient,
+          style: TextStyle(
+            color: selectedName != null
+                ? theme.colorScheme.onSurface
+                : theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
     );
+  }
+
+  Future<void> _showClientDialog(
+    ThemeData theme,
+    AppLocalizations localizations,
+  ) async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        String query = '';
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final filtered = query.isEmpty
+                ? _clients
+                : _clients.where((c) => (c['client_name'] as String)
+                    .toLowerCase()
+                    .contains(query.toLowerCase())).toList();
+
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 12, 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            localizations.selectClient,
+                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close, size: 20),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Buscador
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: TextField(
+                      autofocus: false,
+                      onChanged: (v) => setDialogState(() => query = v),
+                      decoration: InputDecoration(
+                        hintText: localizations.searchClients,
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Divider(height: 1, color: theme.colorScheme.outline.withValues(alpha: 0.15)),
+                  // Lista
+                  if (filtered.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+                      child: Center(
+                        child: Text(
+                          localizations.noClientsFound,
+                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 320),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final client = filtered[index];
+                          final id = client['clients_id'] as String;
+                          final name = client['client_name'] as String;
+                          final isSelected = id == _clientId;
+                          return InkWell(
+                            onTap: () => Navigator.pop(context, id),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor: isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.primary.withValues(alpha: 0.1),
+                                    child: Text(
+                                      name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? theme.colorScheme.onPrimary
+                                            : theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      name,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                        color: isSelected ? theme.colorScheme.primary : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(Icons.check, size: 18, color: theme.colorScheme.primary),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  // Footer
+                  Divider(height: 1, color: theme.colorScheme.outline.withValues(alpha: 0.15)),
+                  InkWell(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final newClient = await showAddClientSheet(context);
+                      if (newClient != null && mounted) {
+                        setState(() {
+                          _clients = [..._clients, newClient]
+                            ..sort((a, b) => (a['client_name'] as String)
+                                .toLowerCase()
+                                .compareTo((b['client_name'] as String).toLowerCase()));
+                          _clientId = newClient['clients_id'] as String;
+                          _clientError = null;
+                        });
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add, size: 18, color: theme.colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            localizations.addClient,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (selected != null) {
+      setState(() {
+        _clientId = selected;
+        _clientError = null;
+      });
+    }
   }
 
   // Helper method to build discount and tax section

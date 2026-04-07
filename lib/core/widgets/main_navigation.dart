@@ -163,7 +163,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 400;
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -181,9 +181,12 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: isSmallScreen 
-                ? _buildScrollableNavigationBar(theme) 
-                : _buildBottomNavigationBar(theme),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: isSmallScreen
+                  ? _buildScrollableNavigationBar(theme)
+                  : _buildBottomNavigationBar(theme),
+            ),
           ),
         ],
       ),
@@ -328,7 +331,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
     };
     
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       child: Container(
         height: 70,
         decoration: BoxDecoration(
@@ -370,7 +373,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                   Expanded(
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.only(left: 8, right: 4),
+                      padding: const EdgeInsets.only(left: 4, right: 2),
                       child: Row(
                         children: scrollableItems.map((item) {
                           final isSelected = _currentIndex == item['index'];
@@ -388,39 +391,41 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                                 }
                                 _onTabTapped(item['index'] as int);
                               },
-                              child: Container(
-                                width: 80,
-                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      isSelected ? item['activeIcon'] as IconData : item['icon'] as IconData,
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.onSurfaceVariant,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Flexible(
-                                      child: ExcludeSemantics(
-                                        child: Text(
-                                          label,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                            color: isSelected
-                                                ? theme.colorScheme.primary
-                                                : theme.colorScheme.onSurfaceVariant,
+                              child: SizedBox(
+                                width: 72,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        isSelected ? item['activeIcon'] as IconData : item['icon'] as IconData,
+                                        color: isSelected
+                                            ? theme.colorScheme.primary
+                                            : theme.colorScheme.onSurfaceVariant,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      ExcludeSemantics(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            label,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                              color: isSelected
+                                                  ? theme.colorScheme.primary
+                                                  : theme.colorScheme.onSurfaceVariant,
+                                            ),
+                                            maxLines: 1,
+                                            textAlign: TextAlign.center,
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.center,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -434,7 +439,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                   Container(
                     width: 1,
                     height: 40,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(0.5),
@@ -447,8 +452,8 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
                     button: true,
                     hint: AppLocalizations.of(context).doubleTapToOpenMoreOptions,
                     child: Container(
-                      width: 80,
-                      constraints: const BoxConstraints.expand(width: 80),
+                      width: 56,
+                      constraints: const BoxConstraints.expand(width: 56),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: const BorderRadius.only(
