@@ -1,0 +1,5 @@
+{
+  "outputDirectory": "web_public",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
