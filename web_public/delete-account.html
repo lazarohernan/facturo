@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account - Facturo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f4f6f7;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        h1 {
+            color: #1F3A93;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-top: 32px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #1F3A93;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .step strong {
+            color: #1F3A93;
+        }
+        .warning {
+            background: #fdf2f2;
+            border: 1px solid #e74c3c;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 24px 0;
+            color: #c0392b;
+        }
+        .contact {
+            background: #eaf4fb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+        .contact a {
+            color: #1F3A93;
+            font-weight: 600;
+        }
+        .lang-toggle {
+            text-align: right;
+            margin-bottom: 16px;
+        }
+        .lang-toggle button {
+            background: none;
+            border: 2px solid #1F3A93;
+            color: #1F3A93;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+        }
+        .lang-toggle button.active {
+            background: #1F3A93;
+            color: white;
+        }
+        .en { display: block; }
+        .es { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="lang-toggle">
+        <button class="active" onclick="setLang('en')">English</button>
+        <button onclick="setLang('es')">Español</button>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="en">
+        <div class="card">
+            <h1>Delete Your Facturo Account</h1>
+            <p class="subtitle">We're sorry to see you go. Follow the steps below to delete your account and all associated data.</p>
+
+            <h2>How to Delete Your Account</h2>
+
+            <div class="step">
+                <strong>Step 1:</strong> Open the Facturo app on your device.
+            </div>
+            <div class="step">
+                <strong>Step 2:</strong> Go to <strong>Profile → Settings → Account</strong>.
+            </div>
+            <div class="step">
+                <strong>Step 3:</strong> Tap <strong>"Delete Account"</strong>.
+            </div>
+            <div class="step">
+                <strong>Step 4:</strong> Confirm the deletion. Your account and all data will be permanently deleted.
+            </div>
+
+            <div class="warning">
+                ⚠️ <strong>Warning:</strong> Account deletion is permanent and cannot be undone. All your invoices, estimates, expenses, and client data will be permanently removed.
+            </div>
+
+            <h2>What Data Gets Deleted</h2>
+            <ul>
+                <li>Your account and profile information</li>
+                <li>All invoices, estimates, and expenses</li>
+                <li>Client database</li>
+                <li>Subscription information</li>
+                <li>All associated files and documents</li>
+            </ul>
+
+            <h2>Need Help?</h2>
+            <div class="contact">
+                If you're unable to access the app or need assistance, contact us at:<br><br>
+                <a href="mailto:support@facturoapp.com">support@facturoapp.com</a><br><br>
+                We will process your deletion request within <strong>30 days</strong>.
+            </div>
+        </div>
+    </div>
+
+    <!-- ESPAÑOL -->
+    <div class="es">
+        <div class="card">
+            <h1>Eliminar tu Cuenta de Facturo</h1>
+            <p class="subtitle">Lamentamos verte ir. Sigue los pasos a continuación para eliminar tu cuenta y todos los datos asociados.</p>
+
+            <h2>Cómo Eliminar tu Cuenta</h2>
+
+            <div class="step">
+                <strong>Paso 1:</strong> Abre la app Facturo en tu dispositivo.
+            </div>
+            <div class="step">
+                <strong>Paso 2:</strong> Ve a <strong>Perfil → Configuración → Cuenta</strong>.
+            </div>
+            <div class="step">
+                <strong>Paso 3:</strong> Toca <strong>"Eliminar Cuenta"</strong>.
+            </div>
+            <div class="step">
+                <strong>Paso 4:</strong> Confirma la eliminación. Tu cuenta y todos los datos serán eliminados permanentemente.
+            </div>
+
+            <div class="warning">
+                ⚠️ <strong>Advertencia:</strong> La eliminación de cuenta es permanente y no se puede deshacer. Todas tus facturas, cotizaciones, gastos y datos de clientes serán eliminados permanentemente.
+            </div>
+
+            <h2>Qué Datos se Eliminan</h2>
+            <ul>
+                <li>Tu cuenta e información de perfil</li>
+                <li>Todas las facturas, cotizaciones y gastos</li>
+                <li>Base de datos de clientes</li>
+                <li>Información de suscripción</li>
+                <li>Todos los archivos y documentos asociados</li>
+            </ul>
+
+            <h2>¿Necesitas Ayuda?</h2>
+            <div class="contact">
+                Si no puedes acceder a la app o necesitas asistencia, contáctanos en:<br><br>
+                <a href="mailto:support@facturoapp.com">support@facturoapp.com</a><br><br>
+                Procesaremos tu solicitud de eliminación en un plazo de <strong>30 días</strong>.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setLang(lang) {
+            document.querySelector('.en').style.display = lang === 'en' ? 'block' : 'none';
+            document.querySelector('.es').style.display = lang === 'es' ? 'block' : 'none';
+            document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.lang-toggle button')[lang === 'en' ? 0 : 1].classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
